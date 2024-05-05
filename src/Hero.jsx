@@ -1,4 +1,12 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Hero() {
+  const navigate = useNavigate();
+
+  function handleNavigate() {
+    navigate("/next");
+  }
+
   return (
     <div>
       <div
@@ -13,12 +21,13 @@ export default function Hero() {
             <div className="text-white">
               <h1 className="mb-3">Quizzify</h1>
               <h4 className="mb-3">How Intelligent are you?</h4>
-              <a
+              <button
                 className="btn btn-outline-dark btn-lg"
-                href="#!"
-                role="button">
+                href=""
+                role="button"
+                onClick={handleNavigate}>
                 Click Here to Start Quiz
-              </a>
+              </button>
             </div>
           </div>
         </div>
