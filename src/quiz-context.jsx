@@ -1,12 +1,16 @@
 import { createContext, useState, useEffect } from "react";
 
-const url = "https://opentdb.com/api.php?amount=20";
+const apiUrl = "https://opentdb.com/api.php";
 
 export const QuizContext = createContext();
 
 export const QuestionsProvider = ({ children }) => {
   const [quiz, setQuiz] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Function to decode HTML entities
   function decodeHtml(html) {
     var txt = document.createElement("textarea");
     txt.innerHTML = html;
@@ -31,29 +35,68 @@ export const QuestionsProvider = ({ children }) => {
     return array;
   };
 
-  useEffect(() => {
+  // Function to fetch quiz data
+  // Function to fetch quiz data based on category
+  const fetchQuizData = (selectedCategory) => {
+    const url = `https://opentdb.com/api.php?amount=10&category=${selectedCategory}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        const fetchedQuestions = data.results.map((result) => {
-          const incorrectAnswers = result.incorrect_answers;
-          const correctAnswer = result.correct_answer;
+        if (data.results) {
+          const fetchedQuestions = data.results.map((result) => {
+            const incorrectAnswers = result.incorrect_answers;
+            const correctAnswer = result.correct_answer;
 
-          // Shuffle answers
-          const shuffledAnswers = shuffle([...incorrectAnswers, correctAnswer]);
+            // Shuffle answers
+            const shuffledAnswers = shuffle([
+              ...incorrectAnswers,
+              correctAnswer,
+            ]);
 
-          return {
-            question: decodeHtml(result.question),
-            correctAnswer: correctAnswer,
-            answers: shuffledAnswers,
-          };
-        });
-        setQuiz(fetchedQuestions);
+            return {
+              question: decodeHtml(result.question),
+              correctAnswer: correctAnswer,
+              answers: shuffledAnswers,
+            };
+          });
+          setQuiz(fetchedQuestions);
+        } else {
+          console.error("Error fetching questions:", data.error);
+        }
       })
-      .catch((error) => console.log("error fetching questions:", error));
+      .catch((error) => console.log("Error fetching questions:", error));
+  };
+
+  // Function to fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("https://opentdb.com/api_category.php");
+      const data = await response.json();
+      setCategories(data.trivia_categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories(); // Fetch categories when component mounts
   }, []);
 
-  const value = { quiz, updateSelectedAnswer };
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchQuizData(selectedCategory); // Fetch quiz data when selected category changes
+    }
+  }, [selectedCategory]);
+
+  const value = {
+    quiz,
+    categories,
+    selectedCategory,
+    setSelectedCategory,
+    loading,
+    updateSelectedAnswer,
+    fetchQuizData,
+  };
 
   return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;
 };
