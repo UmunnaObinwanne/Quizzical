@@ -73,6 +73,12 @@ export default function QuizPage() {
 
   return (
     <>
+      <button
+        className="btn-outline  rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 mb-5"
+        onClick={handleGoBack}
+        style={{ marginTop: "10px" }}>
+        Home
+      </button>
       <div>
         <div className="flex flex-col w-full">
           <div className="grid h-20 card bg-base-300 rounded-box place-items-center bg-white-500">
